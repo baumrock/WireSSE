@@ -54,8 +54,13 @@ class WireSSE extends Wire
   public function send(mixed $msg = ''): void
   {
     if (!is_string($msg)) $msg = json_encode($msg);
+
+    // send data to client
     echo "data: $msg\n\n";
+
+    // some environments seem to need this to immediately send the data
     echo str_pad('', 8186) . "\n";
+
     flush();
   }
 }
