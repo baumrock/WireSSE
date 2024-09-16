@@ -16,6 +16,10 @@ class WireSSE extends Wire
     $this->context = new WireData();
   }
 
+  /**
+   * Start the endless SSE loop and call the init callback once and the
+   * loop callback on every iteration.
+   */
   public function loop(
     callable $callback,
     callable $init = null,
