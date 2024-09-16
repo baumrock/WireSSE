@@ -6,34 +6,47 @@ Until SSE is merged into core, we need to include it manually in `/site/init.php
 
 ```php
 require_once __DIR__ . '/modules/WireSSE/WireSSE.php';
-wire('sse', $this->wire(new WireSSE()));
+wire()->wire('sse', $this->wire(new WireSSE()));
 ```
 
 ## Usage
 
-To use SSE you need to add an endpoint from the backend:
+Usually you need two things for SSE:
+
+1. An endpoint that sends the data
+2. A frontend that receives the data
+
+### Endpoint (Backend)
 
 ```php
 // /site/init.php
-wire()->sse->addEnpoint(
-  // the url path where you want to access the endpoint
-  '/sse-clock',
-
-  // the callback function that is executed in an endless loop
-  // by default it will sleep for 1 second between each call
-  function($sse, $event) {
+wire()->addHookAfter('/sse-clock', function () {
+  wire()->sse->loop(function (WireSSE $sse) {
     $sse->send(date('Y-m-d H:i:s'));
     sleep(1);
-  },
-
-  // optional init function that is called once when the endpoint is setup
-  // function($sse, $event) {
-  //   wire()->config->foo = 'foo';
-  // },
-);
+  });
+});
 ```
 
-And then you can start a connection from the frontend:
+Now visit `/sse-clock` in your browser and you should see something like this:
+
+```
+data: 2024-09-16 19:13:55
+data: 2024-09-16 19:13:56
+data: 2024-09-16 19:13:57
+data: 2024-09-16 19:13:58
+data: 2024-09-16 19:13:59
+data: 2024-09-16 19:14:00
+data: 2024-09-16 19:14:01
+```
+
+... updating every second.
+
+### Client (Frontend)
+
+Having only the stream of data is not very useful. Usually you want to do something with the data on the frontend.
+
+For this we can use Server-Sent Events (SSE) in JavaScript:
 
 ```js
 // any js file that is loaded in your frontend
@@ -43,3 +56,5 @@ sse.onmessage = function(event) {
   console.log(event.data);
 };
 ```
+
+Now you should see the time in the console every second.
