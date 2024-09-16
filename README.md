@@ -18,11 +18,18 @@ To use SSE you need to add an endpoint from the backend:
 wire()->sse->addEnpoint(
   // the url path where you want to access the endpoint
   '/sse-clock',
+
   // the callback function that is executed in an endless loop
-  function($sse) {
+  // by default it will sleep for 1 second between each call
+  function($sse, $event) {
     $sse->send(date('Y-m-d H:i:s'));
     sleep(1);
-  }
+  },
+
+  // optional init function that is called once when the endpoint is setup
+  // function($sse, $event) {
+  //   wire()->config->foo = 'foo';
+  // },
 );
 ```
 
